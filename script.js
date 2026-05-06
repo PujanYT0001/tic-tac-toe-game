@@ -109,28 +109,52 @@ function init() {
     setupEventListeners();
     updateStatsUI();
 
-    // Simulate Loading Screen Sequence
-    setTimeout(() => {
-        document.getElementById('loader-animation').classList.add('hidden');
-        document.getElementById('loading-text').classList.add('hidden');
-        
-        const startPrompt = document.getElementById('start-prompt');
-        startPrompt.classList.remove('hidden');
-        
-        const startHandler = (e) => {
-            if (e.type === 'click' || (e.type === 'keydown' && e.key === 'Enter')) {
-                playClick();
-                document.removeEventListener('keydown', startHandler);
-                screens.loading.removeEventListener('click', startHandler);
-                
-                screens.loading.classList.remove('active');
-                screens.menu.classList.add('active');
+    // Simulate Tic Tac Toe Loading Sequence
+    const loaderSequence = [
+        { id: 'lc-0', mark: 'X' },
+        { id: 'lc-4', mark: 'O' },
+        { id: 'lc-1', mark: 'X' },
+        { id: 'lc-5', mark: 'O' },
+        { id: 'lc-2', mark: 'X' } // X wins
+    ];
+    
+    let step = 0;
+    const loaderInterval = setInterval(() => {
+        if (step < loaderSequence.length) {
+            const cell = document.getElementById(loaderSequence[step].id);
+            if(cell) {
+                cell.innerText = loaderSequence[step].mark;
+                cell.classList.add(loaderSequence[step].mark === 'X' ? 'x-mark' : 'o-mark');
             }
-        };
-        
-        document.addEventListener('keydown', startHandler);
-        screens.loading.addEventListener('click', startHandler);
-    }, 1500);
+            step++;
+        } else {
+            clearInterval(loaderInterval);
+            // Highlight winning row
+            document.getElementById('lc-0').classList.add('win-mark');
+            document.getElementById('lc-1').classList.add('win-mark');
+            document.getElementById('lc-2').classList.add('win-mark');
+            
+            setTimeout(() => {
+                document.getElementById('loading-text').classList.add('hidden');
+                const startPrompt = document.getElementById('start-prompt');
+                startPrompt.classList.remove('hidden');
+                
+                const startHandler = (e) => {
+                    if (e.type === 'click' || (e.type === 'keydown' && e.key === 'Enter')) {
+                        playClick();
+                        document.removeEventListener('keydown', startHandler);
+                        screens.loading.removeEventListener('click', startHandler);
+                        
+                        screens.loading.classList.remove('active');
+                        screens.menu.classList.add('active');
+                    }
+                };
+                
+                document.addEventListener('keydown', startHandler);
+                screens.loading.addEventListener('click', startHandler);
+            }, 500);
+        }
+    }, 250);
 }
 
 function setupEventListeners() {
