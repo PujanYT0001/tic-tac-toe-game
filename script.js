@@ -814,8 +814,8 @@ function triggerConfetti() {
     for (let i = 0; i < 40; i++) sprinkle();
 
     function animate() {
-        // Only run while game is inactive and modal is NOT hidden
-        if (!isGameActive && !document.getElementById('modal-gameover').classList.contains('hidden')) {
+        // Run while game is inactive (someone won or drew)
+        if (!isGameActive) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // Continuous spawning
