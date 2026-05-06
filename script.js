@@ -814,8 +814,8 @@ function triggerConfetti() {
     for (let i = 0; i < 40; i++) sprinkle();
 
     function animate() {
-        // Run while game is inactive (someone won or drew)
-        if (!isGameActive) {
+        // Run while game is inactive (someone won or drew) BUT only if we are still on the game screen!
+        if (!isGameActive && screens.game.classList.contains('active')) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // Continuous spawning
