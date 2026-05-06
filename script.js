@@ -773,51 +773,88 @@ function createSparkles(element) {
     }
 }
 
-// Confetti Effect
+// Confetti Effect (Sprinkler Party Pop)
 function triggerConfetti() {
     const canvas = document.getElementById('confetti-canvas');
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     
-    const pieces = [];
-    const colors = ['#00f3ff', '#ff2a6d', '#b829ff', '#00ff66', '#ffffff'];
+    let pieces = [];
+    // Vibrant neon colors for confetti
+    const colors = ['#00f3ff', '#ff2a6d', '#b829ff', '#00ff66', '#ffff00', '#ff8c00', '#ffffff'];
     
-    for (let i = 0; i < 100; i++) {
+    function sprinkle() {
+        // Left sprinkler
         pieces.push({
-            x: canvas.width / 2,
-            y: canvas.height / 2 + 100,
-            vx: (Math.random() - 0.5) * 20,
-            vy: (Math.random() - 1) * 20 - 5,
+            x: canvas.width * 0.1 + Math.random() * 50,
+            y: canvas.height + 10,
+            vx: (Math.random() - 0.2) * 12 + 2,
+            vy: (Math.random() - 1) * 20 - 10,
             size: Math.random() * 8 + 4,
             color: colors[Math.floor(Math.random() * colors.length)],
             rotation: Math.random() * 360,
-            rotationSpeed: (Math.random() - 0.5) * 10
+            rotationSpeed: (Math.random() - 0.5) * 15
+        });
+        // Right sprinkler
+        pieces.push({
+            x: canvas.width * 0.9 - Math.random() * 50,
+            y: canvas.height + 10,
+            vx: (Math.random() - 0.8) * 12 - 2,
+            vy: (Math.random() - 1) * 20 - 10,
+            size: Math.random() * 8 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            rotationSpeed: (Math.random() - 0.5) * 15
         });
     }
-    
+
+    // Initial burst
+    for (let i = 0; i < 40; i++) sprinkle();
+
     function animate() {
+        // Only run while game is inactive and modal is NOT hidden
         if (!isGameActive && !document.getElementById('modal-gameover').classList.contains('hidden')) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            let active = false;
             
-            pieces.forEach(p => {
+            // Continuous spawning
+            if (Math.random() < 0.6) sprinkle();
+            if (Math.random() < 0.6) sprinkle();
+            
+            for (let i = pieces.length - 1; i >= 0; i--) {
+                let p = pieces[i];
                 p.x += p.vx;
                 p.y += p.vy;
-                p.vy += 0.5; // gravity
+                p.vy += 0.4; // gravity
+                p.vx *= 0.99; // slight air resistance
                 p.rotation += p.rotationSpeed;
-                
-                if (p.y < canvas.height) active = true;
                 
                 ctx.save();
                 ctx.translate(p.x, p.y);
                 ctx.rotate(p.rotation * Math.PI / 180);
+                
+                ctx.globalAlpha = 0.9;
                 ctx.fillStyle = p.color;
+                // Square confetti
                 ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+                
+                // Add a slight glow matching the color
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = p.color;
+                ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+                
                 ctx.restore();
-            });
+                
+                // Remove piece if it falls way below screen
+                if (p.y > canvas.height + 100) {
+                    pieces.splice(i, 1);
+                }
+            }
             
-            if (active) requestAnimationFrame(animate);
+            requestAnimationFrame(animate);
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
     }
     animate();
