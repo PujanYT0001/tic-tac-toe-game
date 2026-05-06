@@ -11,12 +11,13 @@
 
     <!-- Loading Screen -->
     <div id="loading-screen" class="screen active">
-        <div class="loader">
+        <div class="loader" id="loader-animation">
             <div class="loader-circle"></div>
             <div class="loader-circle"></div>
             <div class="loader-circle"></div>
         </div>
-        <h1 class="neon-text flicker">LOADING...</h1>
+        <h1 class="neon-text flicker" id="loading-text">LOADING...</h1>
+        <h2 class="neon-text flicker hidden" id="start-prompt" style="margin-top: 2rem; font-size: 1.5rem; letter-spacing: 4px; cursor: pointer;">PRESS ENTER TO START</h2>
     </div>
 
     <!-- Background Particles Canvas -->

@@ -102,16 +102,35 @@ function init() {
     soundEnabled = localStorage.getItem('neonSound') !== 'false';
     toggleSfx.checked = soundEnabled;
 
-    // Simulate Loading Screen
-    setTimeout(() => {
-        screens.loading.classList.remove('active');
-        screens.menu.classList.add('active');
-        initParticles();
-    }, 1500);
+    // Start background animation immediately
+    initParticles();
 
     // Setup Event Listeners
     setupEventListeners();
     updateStatsUI();
+
+    // Simulate Loading Screen Sequence
+    setTimeout(() => {
+        document.getElementById('loader-animation').classList.add('hidden');
+        document.getElementById('loading-text').classList.add('hidden');
+        
+        const startPrompt = document.getElementById('start-prompt');
+        startPrompt.classList.remove('hidden');
+        
+        const startHandler = (e) => {
+            if (e.type === 'click' || (e.type === 'keydown' && e.key === 'Enter')) {
+                playClick();
+                document.removeEventListener('keydown', startHandler);
+                screens.loading.removeEventListener('click', startHandler);
+                
+                screens.loading.classList.remove('active');
+                screens.menu.classList.add('active');
+            }
+        };
+        
+        document.addEventListener('keydown', startHandler);
+        screens.loading.addEventListener('click', startHandler);
+    }, 1500);
 }
 
 function setupEventListeners() {
