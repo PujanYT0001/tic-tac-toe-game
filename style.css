@@ -64,8 +64,8 @@ body::before {
     100% { transform: rotate(360deg); }
 }
 
-/* Particle Container */
-#particles {
+/* Background Canvas */
+#bg-canvas {
     position: absolute;
     top: 0;
     left: 0;

@@ -624,36 +624,71 @@ function playDraw() { if(soundEnabled && sfxDraw) { sfxDraw.currentTime = 0; sfx
 
 // --- Visual Effects ---
 function initParticles() {
-    const container = document.getElementById('particles');
-    for (let i = 0; i < 50; i++) {
-        const particle = document.createElement('div');
-        particle.style.position = 'absolute';
-        particle.style.width = `${Math.random() * 4 + 1}px`;
-        particle.style.height = particle.style.width;
-        particle.style.background = 'rgba(255, 255, 255, 0.3)';
-        particle.style.borderRadius = '50%';
-        particle.style.top = `${Math.random() * 100}vh`;
-        particle.style.left = `${Math.random() * 100}vw`;
-        particle.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.5)';
+    const canvas = document.getElementById('bg-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let width, height, particles;
+    
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        particles = [];
+        const numParticles = Math.floor(window.innerWidth / 15);
+        for (let i = 0; i < Math.min(numParticles, 120); i++) {
+            particles.push(new Particle());
+        }
+    }
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.vx = (Math.random() - 0.5) * 1.2;
+            this.vy = (Math.random() - 0.5) * 1.2;
+            this.radius = Math.random() * 2 + 0.5;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0 || this.x > width) this.vx *= -1;
+            if (this.y < 0 || this.y > height) this.vy *= -1;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.fill();
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
         
-        // Animation
-        const duration = Math.random() * 20 + 10;
-        const delay = Math.random() * 5;
-        particle.style.animation = `floatParticle ${duration}s linear ${delay}s infinite alternate`;
-        
-        container.appendChild(particle);
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+            particles[i].draw();
+            
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 120) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 * (1 - distance/120)})`;
+                    ctx.lineWidth = 1;
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(animate);
     }
     
-    // Add keyframes dynamically
-    const style = document.createElement('style');
-    style.innerHTML = `
-        @keyframes floatParticle {
-            0% { transform: translateY(0) translateX(0); opacity: 0.2; }
-            50% { opacity: 0.8; }
-            100% { transform: translateY(-100px) translateX(50px); opacity: 0.2; }
-        }
-    `;
-    document.head.appendChild(style);
+    window.addEventListener('resize', resize);
+    resize();
+    animate();
 }
 
 function createSparkles(element) {
