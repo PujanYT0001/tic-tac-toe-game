@@ -248,6 +248,11 @@ body::before {
     text-align: center;
 }
 
+#main-title:active {
+    transform: scale(0.95);
+    text-shadow: 0 0 5px var(--primary-glow), 0 0 50px var(--primary), 0 0 100px var(--primary);
+}
+
 .menu-card {
     padding: 3rem;
     display: flex;

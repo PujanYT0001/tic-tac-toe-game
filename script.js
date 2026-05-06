@@ -13,6 +13,7 @@ const btnAiEasy = document.getElementById('btn-ai-easy');
 const btnAiHard = document.getElementById('btn-ai-hard');
 const btnStats = document.getElementById('btn-stats');
 const btnSettings = document.getElementById('btn-settings');
+const mainTitle = document.getElementById('main-title');
 
 // Game UI Elements
 const boardElement = document.getElementById('board');
@@ -124,6 +125,12 @@ function setupEventListeners() {
     });
     btnAiEasy.addEventListener('click', () => { playClick(); showNameModal('pva', 'easy'); });
     btnAiHard.addEventListener('click', () => { playClick(); showNameModal('pva', 'hard'); });
+
+    // Title Interaction
+    if (mainTitle) {
+        mainTitle.addEventListener('mouseenter', () => playHover());
+        mainTitle.addEventListener('click', () => playClick());
+    }
     
     // Board
     cells.forEach(cell => {
