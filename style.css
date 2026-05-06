@@ -248,9 +248,31 @@ body::before {
     text-align: center;
 }
 
+#main-title {
+    background: linear-gradient(90deg, #00f3ff, #b829ff, #00ff66, #b829ff, #00f3ff);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: none; /* override default neon-text shadow */
+    filter: drop-shadow(0 0 10px var(--primary-glow)) drop-shadow(0 0 20px var(--primary));
+    animation: gradientFlow 5s linear infinite, titlePulse 3s ease-in-out infinite alternate;
+}
+
 #main-title:active {
-    transform: scale(0.95);
-    text-shadow: 0 0 5px var(--primary-glow), 0 0 50px var(--primary), 0 0 100px var(--primary);
+    transform: scale(0.95) !important;
+    filter: drop-shadow(0 0 20px var(--primary)) drop-shadow(0 0 40px var(--primary));
+}
+
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes titlePulse {
+    0% { filter: drop-shadow(0 0 5px var(--primary-glow)) drop-shadow(0 0 15px var(--primary)); transform: scale(1); }
+    100% { filter: drop-shadow(0 0 15px var(--primary-glow)) drop-shadow(0 0 30px var(--primary)); transform: scale(1.05); }
 }
 
 .menu-card {
