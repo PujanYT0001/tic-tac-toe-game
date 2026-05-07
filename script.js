@@ -104,6 +104,7 @@ function init() {
 
     // Start background animation immediately
     initParticles();
+    initConfetti(); // Start the permanent confetti background
 
     // Setup Event Listeners
     setupEventListeners();
@@ -413,7 +414,6 @@ function handleWin(player, winningRow) {
     });
 
     drawWinningLine(winningRow);
-    triggerConfetti();
 
     winnerText.innerText = `${player === 'X' ? playerXName : playerOName} Wins!`;
     winnerText.style.color = player === 'X' ? 'var(--x-color)' : 'var(--o-color)';
@@ -773,61 +773,64 @@ function createSparkles(element) {
     }
 }
 
-// Confetti Effect (Sprinkler Party Pop)
-function triggerConfetti() {
+// Confetti Effect (Sprinkler Party Pop Background)
+let confettiPieces = [];
+const confettiColors = ['#00f3ff', '#ff2a6d', '#b829ff', '#00ff66', '#ffff00', '#ff8c00', '#ffffff'];
+
+function sprinkleConfetti(canvas) {
+    // Left sprinkler
+    confettiPieces.push({
+        x: canvas.width * 0.1 + Math.random() * 50,
+        y: canvas.height + 10,
+        vx: (Math.random() - 0.2) * 12 + 2,
+        vy: (Math.random() - 1) * 20 - 10,
+        size: Math.random() * 8 + 4,
+        color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+        rotation: Math.random() * 360,
+        rotationSpeed: (Math.random() - 0.5) * 15
+    });
+    // Right sprinkler
+    confettiPieces.push({
+        x: canvas.width * 0.9 - Math.random() * 50,
+        y: canvas.height + 10,
+        vx: (Math.random() - 0.8) * 12 - 2,
+        vy: (Math.random() - 1) * 20 - 10,
+        size: Math.random() * 8 + 4,
+        color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+        rotation: Math.random() * 360,
+        rotationSpeed: (Math.random() - 0.5) * 15
+    });
+}
+
+function initConfetti() {
     const canvas = document.getElementById('confetti-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
     
-    let pieces = [];
-    // Vibrant neon colors for confetti
-    const colors = ['#00f3ff', '#ff2a6d', '#b829ff', '#00ff66', '#ffff00', '#ff8c00', '#ffffff'];
-    
-    function sprinkle() {
-        // Left sprinkler
-        pieces.push({
-            x: canvas.width * 0.1 + Math.random() * 50,
-            y: canvas.height + 10,
-            vx: (Math.random() - 0.2) * 12 + 2,
-            vy: (Math.random() - 1) * 20 - 10,
-            size: Math.random() * 8 + 4,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            rotation: Math.random() * 360,
-            rotationSpeed: (Math.random() - 0.5) * 15
-        });
-        // Right sprinkler
-        pieces.push({
-            x: canvas.width * 0.9 - Math.random() * 50,
-            y: canvas.height + 10,
-            vx: (Math.random() - 0.8) * 12 - 2,
-            vy: (Math.random() - 1) * 20 - 10,
-            size: Math.random() * 8 + 4,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            rotation: Math.random() * 360,
-            rotationSpeed: (Math.random() - 0.5) * 15
-        });
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     }
+    window.addEventListener('resize', resize);
+    resize();
 
     // Initial burst
-    for (let i = 0; i < 40; i++) sprinkle();
+    for (let i = 0; i < 40; i++) sprinkleConfetti(canvas);
 
     function animate() {
-        // Run while game is inactive (someone won or drew) BUT only if we are still on the game screen!
-        if (!isGameActive && screens.game.classList.contains('active')) {
+        // Run continuously whenever the game is NOT actively being played
+        if (!isGameActive) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Continuous spawning
-            if (Math.random() < 0.6) sprinkle();
-            if (Math.random() < 0.6) sprinkle();
+            if (Math.random() < 0.6) sprinkleConfetti(canvas);
+            if (Math.random() < 0.6) sprinkleConfetti(canvas);
             
-            for (let i = pieces.length - 1; i >= 0; i--) {
-                let p = pieces[i];
+            for (let i = confettiPieces.length - 1; i >= 0; i--) {
+                let p = confettiPieces[i];
                 p.x += p.vx;
                 p.y += p.vy;
                 p.vy += 0.4; // gravity
-                p.vx *= 0.99; // slight air resistance
+                p.vx *= 0.99; // air resistance
                 p.rotation += p.rotationSpeed;
                 
                 ctx.save();
@@ -836,26 +839,26 @@ function triggerConfetti() {
                 
                 ctx.globalAlpha = 0.9;
                 ctx.fillStyle = p.color;
-                // Square confetti
                 ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
                 
-                // Add a slight glow matching the color
                 ctx.shadowBlur = 10;
                 ctx.shadowColor = p.color;
                 ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
                 
                 ctx.restore();
                 
-                // Remove piece if it falls way below screen
                 if (p.y > canvas.height + 100) {
-                    pieces.splice(i, 1);
+                    confettiPieces.splice(i, 1);
                 }
             }
-            
-            requestAnimationFrame(animate);
         } else {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Clear canvas when game is active
+            if (confettiPieces.length > 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                confettiPieces = [];
+            }
         }
+        requestAnimationFrame(animate);
     }
     animate();
 }
